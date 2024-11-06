@@ -1,50 +1,31 @@
-import React, { useState } from 'react';
-import { Container, Row } from 'react-bootstrap';
-import Product from './../components/Product';
-import SearchBar from './../components/SearchBar';
-const Products = () => {
-  // Mock data for products
-  const products = [
-    {
-      id: 1,
-      name: 'Laptop',
-      description: 'A powerful laptop for all your needs.',
-      image: 'https://via.placeholder.com/150',
-    },
-    {
-      id: 2,
-      name: 'Smartphone',
-      description: 'A smart smartphone with great features.',
-      image: 'https://via.placeholder.com/150',
-    },
-    {
-      id: 3,
-      name: 'Headphones',
-      description: 'Noise-cancelling over-ear headphones.',
-      image: 'https://via.placeholder.com/150',
-    },
-    {
-      id: 4,
-      name: 'Smartwatch',
-      description: 'A smartwatch with fitness tracking capabilities.',
-      image: 'https://via.placeholder.com/150',
-    },
-    // Add more products as needed
-  ];
+import React, { useContext, useState } from "react";
+import { Container, Row } from "react-bootstrap";
+import Product from "./../components/Product";
+import SearchBar from "./../components/SearchBar";
+import { ShoppingStore } from "../store/ShoppingCartProvider";
+import { useSearchParams } from "react-router-dom";
 
-  const [searchTerm, setSearchTerm] = useState('');
+const Products = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const { products } = useContext(ShoppingStore);
+  const [searchParams] = useSearchParams();
+  const paramValueCategory = searchParams.get("category");
 
   // Filter products based on search term
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = products
+    .filter((product) => {
+      return paramValueCategory ? product.category === paramValueCategory : product;
+    })
+    .filter((product) => {
+      return product.name.toLowerCase().includes(searchTerm.toLowerCase());
+    });
 
   return (
-    <Container>
+    <Container className="mt-3">
       <h2>Products</h2>
       <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       <Row>
-        {filteredProducts.map(product => (
+        {filteredProducts.map((product) => (
           <Product key={product.id} product={product} />
         ))}
       </Row>

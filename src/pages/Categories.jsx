@@ -12,7 +12,7 @@ const categories = [
 
 const Categories = () => {
   return (
-    <Container>
+    <Container className='mt-3'>
       <h2>Categories</h2>
       <ListGroup>
         {categories.map((category) => (
