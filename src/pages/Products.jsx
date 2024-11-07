@@ -14,7 +14,9 @@ const Products = () => {
   // Filter products based on search term
   const filteredProducts = products
     .filter((product) => {
-      return paramValueCategory ? product.category === paramValueCategory : product;
+      return paramValueCategory
+        ? product.category === paramValueCategory
+        : product;
     })
     .filter((product) => {
       return product.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -25,9 +27,13 @@ const Products = () => {
       <h2>Products</h2>
       <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       <Row>
-        {filteredProducts.map((product) => (
-          <Product key={product.id} product={product} />
-        ))}
+        {filteredProducts.length ? (
+          filteredProducts.map((product) => (
+            <Product key={product.id} product={product} />
+          ))
+        ) : (
+          <h4 className="mt-3">No Products</h4>
+        )}
       </Row>
     </Container>
   );

@@ -1,77 +1,47 @@
 import { actions } from "./actions";
 
 export const reducer = (state, action) => {
-  let item = state.products.find(
-    (product) => product.id === parseInt(action.item.id)
-  );
+  const { cartItems, products } = state;
+  const { id, quantity } = action.item || {};
+
+  const findProductInCart = (id) =>
+    cartItems.find((product) => product.id === parseInt(id));
+
+  const updateCartItems = (updatedProduct) => {
+    // Remove duplicates and update quantities if product is already in the cart
+    return [
+      ...cartItems.filter((cartItem) => cartItem.id !== updatedProduct.id),
+      updatedProduct,
+    ];
+  };
+
   switch (action.type) {
-    case actions.ADD_ITEM:
-      let newCartItems = [];
-      if (action.item.quantity > 0) {
-        if (state.cartItems.length >= 1) {
-          state.cartItems.forEach((cart) => {
-            if (cart.id === parseInt(action.item.id)) {
-              newCartItems = [...state.cartItems];
-              let index = newCartItems.findIndex(
-                (cart) => cart.id === parseInt(action.item.id)
-              );
-              newCartItems[index].quantity = action.item.quantity;
-            } else {
-              newCartItems = [...state.cartItems, item].map((_) => {
-                return {
-                  ..._,
-                  quantity:
-                    _.id === parseInt(action.item.id)
-                      ? action.item.quantity
-                      : _.quantity,
-                };
-              });
-            }
-          });
+    case actions.ADD_ITEM: {
+      const product = products.find((product) => product.id === parseInt(id));
 
-          // remove duplicate
-          newCartItems = newCartItems.filter(
-            (product, index, self) =>
-              index === self.findIndex((p) => p.id === product.id)
-          );
-        } else {
-          newCartItems = [...state.cartItems, item].map((_) => {
-            return {
-              ..._,
-              quantity:
-                _.id === parseInt(action.item.id)
-                  ? action.item.quantity
-                  : _.quantity,
-            };
-          });
-        }
-      }
+      if (!product || quantity <= 0) return state;
+      const updatedProduct = { ...product, quantity };
 
       return {
         ...state,
-        cartItems: newCartItems,
-        products: state.products.map((_) => {
-          return {
-            ..._,
-            quantity:
-              _.id === parseInt(action.item.id)
-                ? action.item.quantity
-                : _.quantity,
-          };
-        }),
-      };
-    case actions.REMOVE_ITEM:
-      return {
-        ...state,
-        cartItems: state.cartItems.filter(
-          (_) => _.id !== parseInt(action.item.id)
+        cartItems: updateCartItems(updatedProduct),
+        products: products.map((product) =>
+          product.id === parseInt(id) ? updatedProduct : product
         ),
-        products: state.products.map((_) => {
-          return {
-            ..._,
-            quantity: _.id === parseInt(action.item.id) ? 0 : _.quantity,
-          };
-        }),
       };
+    }
+
+    case actions.REMOVE_ITEM: {
+      return {
+        ...state,
+        cartItems: cartItems.filter((item) => item.id !== parseInt(id)),
+        products: products.map((product) =>
+          product.id === parseInt(id) ? { ...product, quantity: 0 } : product
+        ),
+      };
+    }
+
+    default:
+      return state;
   }
 };
