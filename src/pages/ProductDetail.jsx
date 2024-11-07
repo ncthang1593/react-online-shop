@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { Container, Row, Col, Image, Button } from "react-bootstrap";
 import { ShoppingStore } from "../store/ShoppingCartProvider";
 import { actions } from "../store/actions";
+import Toastr from "./Toastr";
 
 const ProductDetail = () => {
   const { products, addItemCart } = useContext(ShoppingStore);
@@ -10,6 +11,20 @@ const ProductDetail = () => {
   const [count, setCount] = useState(
     products.find((product) => product.id === parseInt(id)).quantity
   );
+  const [showToastr, setShowToastr] = useState(false);
+  const [toastrMessage, setToastrMessage] = useState("");
+  const [toastrType, setToastrType] = useState("success");
+
+  const handleShowToastr = (type) => {
+    setToastrType(type);
+    setToastrMessage(
+      type === "success"
+        ? "Add to card was successful!"
+        : "Something went wrong!"
+    );
+    setShowToastr(true);
+  };
+
   const product = products.find((product) => product.id === parseInt(id));
   if (!product) {
     return <h2>Product not found</h2>;
@@ -17,6 +32,9 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     addItemCart({ type: actions.ADD_ITEM, item: { id, quantity: count } });
+    if (count) {
+      handleShowToastr("success");
+    }
   };
 
   useEffect(() => {
@@ -61,6 +79,13 @@ const ProductDetail = () => {
           </Button>
         </Col>
       </Row>
+
+      <Toastr
+        show={showToastr}
+        onClose={() => setShowToastr(false)}
+        message={toastrMessage}
+        type={toastrType}
+      />
     </Container>
   );
 };

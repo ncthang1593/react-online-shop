@@ -28,6 +28,12 @@ export const reducer = (state, action) => {
               });
             }
           });
+
+          // remove duplicate
+          newCartItems = newCartItems.filter(
+            (product, index, self) =>
+              index === self.findIndex((p) => p.id === product.id)
+          );
         } else {
           newCartItems = [...state.cartItems, item].map((_) => {
             return {
